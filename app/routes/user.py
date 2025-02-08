@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.auth import verify_password, hash_password
 from app.core.config import config
@@ -11,7 +10,8 @@ from app.core.security import create_access_token, create_reset_token, verify_re
 from app.models.admin import Admin
 from app.models.base_user import User
 from app.models.teacher import Teacher
-from app.schemas.user import UserBase, Role, UserLogin, ForgotPasswordRequest, ResetPasswordRequest
+from app.schemas.user import UserBase, Role, UserLogin, ForgotPasswordRequest, ResetPasswordRequest, \
+    ResendVerificationRequest
 from app.utils.email_utils import send_verification_email, send_reset_email
 
 router = APIRouter()
@@ -30,8 +30,7 @@ def signin(user: UserLogin, users_collection=Depends(get_users_collection)):
 
     if not existing_user.get("verified", False):  # ✅ Check if user is verified
         raise HTTPException(status_code=403, detail="Email not verified. Please verify your email before logging in.")
-
-    token = create_access_token({"sub": existing_user["username"], "role": existing_user["role"]})
+    token = create_access_token({"username": existing_user["username"], "role": existing_user["role"]})
 
     return {"access_token": token, "token_type": "bearer"}
 
@@ -115,22 +114,28 @@ def verify_email(token: str, users_collection=Depends(get_users_collection)):
     user = users_collection.find_one({"verification_token": token})
 
     if not user:
+        # Check if the token was already used (user already verified)
+        already_verified_user = users_collection.find_one({"verified": True, "verification_token": {"$exists": False}})
+        if already_verified_user:
+            return {"message": "تم التحقق من بريدك الإلكتروني بالفعل. يمكنك تسجيل الدخول."}
         raise HTTPException(status_code=400, detail="Invalid token")
 
     if user.get("verification_expiry") and datetime.utcnow() > user["verification_expiry"]:
-        raise HTTPException(status_code=400, detail="Verification link has expired. Request a new one.")
+        raise HTTPException(status_code=400, detail="Verification link has expired")
 
     users_collection.update_one(
         {"_id": user["_id"]},
         {"$set": {"verified": True}, "$unset": {"verification_token": "", "verification_expiry": ""}}
     )
 
-    return {"message": "Email verified successfully! You can now log in."}
+    return {"message": "تم التحقق من بريدك الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول."}
 
 
 @router.post("/resend-verification")
-def resend_verification(email: str, users_collection=Depends(get_users_collection)):
+def resend_verification(request: ResendVerificationRequest, users_collection=Depends(get_users_collection)):
     """Resend a new verification email if the old one expired."""
+
+    email = request.email
     user = users_collection.find_one({"email": email})
 
     if not user:

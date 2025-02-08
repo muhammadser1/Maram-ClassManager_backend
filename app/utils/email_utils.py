@@ -32,22 +32,30 @@ def send_email(subject: str, body: str, to_email: str):
 def send_verification_email(to_email: str, token: str, name: str):
     """Send an email verification link after user signup."""
     subject = "Verify Your Account"
+
+    verification_link = f"http://localhost:5173/verify-email?token={token}"
+    resend_link = f"http://localhost:5173/ResendVerification?email={to_email}"
+
     body = f"""
     Dear {name},
 
     Thank you for signing up! Please verify your email by clicking the link below:
 
-    http://localhost:5173/verify-email?token={token}
+    <a href="{verification_link}">Verify Your Email</a>
 
     This link will expire in 24 hours.
 
+    If your link has expired, click below to request a new one:
+
+    <a href="{resend_link}">Resend Verification Email</a>
+
     If you did not sign up, please ignore this email.
 
-    Regards,
+    Regards,  
     Your Institute
     """
-    send_email(subject, body, to_email)
 
+    send_email(subject, body, to_email)
 
 
 def send_reset_email(to_email: str, token: str, name: str):

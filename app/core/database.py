@@ -12,8 +12,9 @@ class MongoDatabase:
         self.client = self.check_mongo_connection()
         self.db = self.client[config.MONGO_DATABASE]
         self.users_collection = self.db["Users"]
-        self.lessons_collection = self.db["Lessons"]
-        self.students_collection = self.db["Students"]
+        self.individual_lesso1ns_collection = self.db["IndividualLessons"]
+        self.group_lessons_collection = self.db["GroupLessons"]
+
 
     def check_mongo_connection(self):
         """

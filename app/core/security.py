@@ -1,12 +1,9 @@
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from datetime import datetime, timezone, timedelta
 from app.core.config import config
 import random
 import string
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -18,15 +15,21 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, config.JWT_SECRET_KEY, algorithm=config.ALGORITHM)
 
-
-def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
+def verify_token(token: str) -> dict:
     """
     Verifies and decodes a JWT token.
     Returns the user data if valid, otherwise raises an HTTP exception.
     """
     try:
-        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
-        if "email" not in payload or "role" not in payload or "username" not in payload or "exp" not in payload:
+        print(f"🔍 Received Token: {token}")  # Debugging
+
+        if token.startswith("Bearer "):
+            token = token.split("Bearer ")[1]  # Remove "Bearer " prefix
+
+        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.ALGORITHM])
+        print(f"✅ Decoded Token: {payload}")  # Debugging
+
+        if "username" not in payload or "exp" not in payload:
             raise HTTPException(status_code=401, detail="Invalid token format")
 
         if datetime.fromtimestamp(payload["exp"], tz=timezone.utc) < datetime.now(timezone.utc):
@@ -35,15 +38,15 @@ def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
         return payload
 
     except JWTError:
+        print("❌ Invalid token!")  # Debugging
         raise HTTPException(status_code=401, detail="Invalid token")
-
 
 def get_current_user(token: dict = Depends(verify_token)) -> dict:
     """
     Extracts and returns user information from JWT token.
     """
+    print(f"🔑 Authenticated User from Token: {token}")  # Debugging
     return {
-        "email": token["email"],
         "username": token["username"],
         "role": token["role"]
     }

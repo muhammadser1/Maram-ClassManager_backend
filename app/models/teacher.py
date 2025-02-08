@@ -23,9 +23,11 @@ class Teacher(User):
         return {"message": "Assignment created successfully"}
 
     def submit_lesson(self, lesson_data: dict, lessons_collection):
-        """ Submits a new lesson """
+        """ Submits a new lesson with pending approval """
+        lesson_data["approved"] = False
+        lesson_data["teacher_name"] = self.username
         lessons_collection.insert_one(lesson_data)
-        return {"message": "Lesson submitted successfully"}
+        return {"message": "Lesson submitted successfully, pending approval"}
 
     def view_statistics(self, lessons_collection):
         """ Retrieves statistics for the teacher's lessons """

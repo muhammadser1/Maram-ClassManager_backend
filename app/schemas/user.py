@@ -9,6 +9,9 @@ class Role(str, Enum):
     TEACHER = "teacher"
     STUDENT = "student"
 
+class ResendVerificationRequest(BaseModel):
+    email: str
+
 
 class UserLogin(BaseModel):
     username: str
@@ -28,7 +31,7 @@ class UserBase(BaseModel):
     """ Base schema for users """
     username: str = Field(..., min_length=1, max_length=50, title="Username")
     email: EmailStr = Field(..., title="Email Address")
-    role: Role = Field(..., title="User Role")
+    role: Role = Field(default="teacher", title="User Role")
     birthday: Optional[date] = Field(None, title="User Birthday")
     password: SecretStr = Field(..., min_length=1, title="Password", description="User's password (min 8 chars)")
 
