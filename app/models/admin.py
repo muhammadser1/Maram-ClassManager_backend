@@ -1,9 +1,10 @@
 from app.models.base_user import User, Role
 from datetime import datetime, date
 from typing import Optional
+from bson import ObjectId
+
 
 class Admin(User):
-    """ Admin model with extra permissions and email verification """
 
     def __init__(self, username: str, email: str, password: str,
                  birthday: Optional[date] = None,
@@ -18,19 +19,36 @@ class Admin(User):
 
     def approve_lesson(self, lesson_id: str, lessons_collection):
         """ Approves a lesson submitted by a teacher """
-        lessons_collection.update_one({"_id": lesson_id}, {"$set": {"status": "approved"}})
-        return {"message": "Lesson approved successfully"}
+        try:
+            lesson_object_id = ObjectId(lesson_id)
+            result = lessons_collection.update_one({"_id": lesson_object_id}, {"$set": {"approved": True}})
+
+            if result.matched_count == 0:
+                return {"error": "Lesson not found"}
+
+            return {"message": "Lesson approved successfully", "lessonId": lesson_id}
+        except Exception as e:
+            return {"error": f"Error approving lesson: {str(e)}"}
 
     def reject_lesson(self, lesson_id: str, lessons_collection):
         """ Rejects a lesson submitted by a teacher """
-        lessons_collection.update_one({"_id": lesson_id}, {"$set": {"status": "rejected"}})
-        return {"message": "Lesson rejected"}
+        try:
+            lesson_object_id = ObjectId(lesson_id)
+            result = lessons_collection.update_one({"_id": lesson_object_id}, {"$set": {"approved": False}})
 
-    def view_all_lessons_statistics(self, lessons_collection):
-        """ Retrieves statistics of all lessons """
-        return list(lessons_collection.find({}, {"_id": 0}))
+            if result.matched_count == 0:
+                return {"error": "Lesson not found"}
 
-    def add_suggestion(self, suggestion: str, suggestions_collection):
-        """ Adds a suggestion """
-        suggestions_collection.insert_one({"suggestion": suggestion})
-        return {"message": "Suggestion added successfully"}
+            return {"message": "Lesson rejected", "lessonId": lesson_id}
+        except Exception as e:
+            return {"error": f"Error rejecting lesson: {str(e)}"}
+
+    def view_all_lessons_statistics(self, lessons_collection, approved: Optional[bool] = None):
+        """ Retrieves statistics of all lessons with an optional filter """
+        query = {} if approved is None else {"approved": approved}
+        lessons = list(lessons_collection.find(query, {"_id": 0}))
+        return {
+            "message": "Lesson statistics retrieved successfully",
+            "total_lessons": len(lessons),
+            "lessons": lessons
+        }
