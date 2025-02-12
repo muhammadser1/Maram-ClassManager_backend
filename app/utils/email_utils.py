@@ -33,8 +33,8 @@ def send_verification_email(to_email: str, token: str, name: str):
     """Send an email verification link after user signup."""
     subject = "Verify Your Account"
 
-    verification_link = f"https://www.al-maram.com//verify-email?token={token}"
-    resend_link = f"https://www.al-maram.com//ResendVerification?email={to_email}"
+    verification_link = f"al-maram.com/verify-email?token={token}"
+    resend_link = f"al-maram.com/ResendVerification?email={to_email}"
 
     body = f"""
     Dear {name},
