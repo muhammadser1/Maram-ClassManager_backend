@@ -90,17 +90,17 @@ def reset_password(request: ResetPasswordRequest, users_collection=Depends(get_u
 @router.get("/verify-email")
 def verify_email(token: str, users_collection=Depends(get_users_collection)):
     """Confirm user email verification with expiration check."""
-    user = users_collection.find_one({"verification_token": token})
+    user = users_collection.find_one({"verificationToken": token})
 
     if not user:
-        return {"message": "تم التحقق من بريدك الإلكتروني بالفعل. يمكنك تسجيل الدخول."} if users_collection.find_one({"verified": True, "verification_token": {"$exists": False}}) else HTTPException(status_code=400, detail="Invalid token")
+        return {"message": "تم التحقق من بريدك الإلكتروني بالفعل. يمكنك تسجيل الدخول."} if users_collection.find_one({"verified": True, "verificationToken": {"$exists": False}}) else HTTPException(status_code=400, detail="Invalid token")
 
-    if user.get("verification_expiry") and datetime.utcnow() > user["verification_expiry"]:
+    if user.get("verificationExpiry") and datetime.utcnow() > user["verificationExpiry"]:
         raise HTTPException(status_code=400, detail="Verification link has expired. Please request a new one.")
 
     users_collection.update_one(
         {"_id": user["_id"]},
-        {"$set": {"verified": True}, "$unset": {"verification_token": "", "verification_expiry": ""}}
+        {"$set": {"verified": True}, "$unset": {"verificationToken": "", "verificationExpiry": ""}}
     )
 
     return {"message": "تم التحقق من بريدك الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول."}
@@ -122,7 +122,7 @@ def resend_verification(request: ResendVerificationRequest, users_collection=Dep
 
     users_collection.update_one(
         {"_id": user["_id"]},
-        {"$set": {"verification_token": new_verification_token, "verification_expiry": expiration_time}}
+        {"$set": {"verificationToken": new_verification_token, "verificationExpiry": expiration_time}}
     )
 
     send_verification_email(user["email"], new_verification_token, user["username"])
