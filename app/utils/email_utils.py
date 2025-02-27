@@ -66,7 +66,7 @@ def send_reset_email(to_email: str, token: str, name: str):
 
     We received a request to reset your password. Click the link below:
 
-    http://localhost:5173/reset-password?token={token}
+   al-maram.com/reset-password?token={token}
 
     If you did not request this, please ignore the email.
 
