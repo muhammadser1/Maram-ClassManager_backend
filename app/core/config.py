@@ -20,7 +20,7 @@ class Config:
     # jwt:
     JWT_SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGO_HASH")
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES = 3000
     JWT_RESET_SECRET_KEY = os.getenv("JWT_RESET_SECRET_KEY")
 
 config = Config()
