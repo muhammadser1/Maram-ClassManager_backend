@@ -151,6 +151,19 @@ def reject_group_lesson(
     """Reject a group lesson."""
     return update_lesson_status(lessons_collection, lesson_id, approved=False)
 
+@router.delete("/admin/delete-lesson/{lesson_id}", response_model=dict)
+def admin_delete_lesson(
+    lesson_id: str,
+    lessons_collection=Depends(get_individual_lessons_collection),
+    current_user=Depends(role_required("admin"))
+):
+    """Admin deletes any lesson (regardless of owner or approval)."""
+    result = lessons_collection.delete_one({"_id": ObjectId(lesson_id)})
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    return {"message": "Lesson deleted by admin successfully"}
 
 @router.get("/student-stats", response_model=dict)
 def get_student_stats(
