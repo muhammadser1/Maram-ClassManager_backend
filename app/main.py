@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import user,teacher,group_lessons,admin
+from app.routes import user,teacher,group_lessons,admin,student_payments
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -22,6 +22,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(user.router, prefix="/user", tags=["user"])
 app.include_router(teacher.router, prefix="/teacher", tags=["teacher"])
 app.include_router(group_lessons.router, prefix="/group_lessons", tags=["group_lessons"])
+app.include_router(student_payments.router, prefix="/student_payments", tags=["student_payments"])
 
 @app.get("/")
 async def root():

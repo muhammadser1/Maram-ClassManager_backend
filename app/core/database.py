@@ -14,7 +14,7 @@ class MongoDatabase:
         self.users_collection = self.db["Users"]
         self.individual_lesso1ns_collection = self.db["IndividualLessons"]
         self.group_lessons_collection = self.db["GroupLessons"]
-
+        self.student_payments_collection = self.db["StudentPayments"]
 
     def check_mongo_connection(self):
         """
