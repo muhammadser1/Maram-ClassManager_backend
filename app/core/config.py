@@ -12,6 +12,7 @@ class Config:
     EMAIL_USER = os.getenv("EMAIL_USER")
     EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
     VERIFICATION_EXPIRE_HOURS = 2
+    EMAIL_TO = os.getenv("EMAIL_TO")
 
     # Mongo:
     MONGO_CLUSTER_URL = os.getenv("MONGO_CLUSTER_URL")

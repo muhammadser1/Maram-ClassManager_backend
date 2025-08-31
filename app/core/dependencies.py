@@ -22,7 +22,7 @@ get_users_collection = get_collection("Users")
 get_individual_lessons_collection = get_collection("IndividualLessons")
 get_group_lessons_collection = get_collection("GroupLessons")
 get_student_payments_collection = get_collection("StudentPayments")
-
+get_student_bookings_collection = get_collection("StudentBookings")
 
 def get_current_authenticated_user(user: dict = Depends(get_current_user)):
     """ Dependency to ensure the user is authenticated. """

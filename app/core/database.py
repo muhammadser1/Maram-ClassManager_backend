@@ -15,7 +15,7 @@ class MongoDatabase:
         self.individual_lesso1ns_collection = self.db["IndividualLessons"]
         self.group_lessons_collection = self.db["GroupLessons"]
         self.student_payments_collection = self.db["StudentPayments"]
-
+        self.student_bookings_collection = self.db["StudentBookings"]
     def check_mongo_connection(self):
         """
         Checks the MongoDB connection using the configured URI.

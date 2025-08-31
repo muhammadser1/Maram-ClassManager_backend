@@ -44,3 +44,5 @@ starkbank-ecdsa==2.2.0
 starlette==0.41.3
 typing_extensions==4.12.2
 uvicorn==0.34.0
+
+apscheduler==3.10.4
